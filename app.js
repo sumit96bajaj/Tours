@@ -62,15 +62,3 @@ app.all('*', (req, res, next) => {
 });
 app.use(globalErrorHandler);
 module.exports = app;
-// const users = [
-//   { name: "John", hobbies: ["singing", "walking", "playing guitar"] },
-//   { name: "Terry", hobbies: ["swimming", "playing guitar"] },
-//   { name: "Anna", hobbies: ["walking", "swimming", "playing guitar"] },
-//   { name: "Paul", hobbies: ["swimming", "singing"] },
-// ];
-// // // {
-// // //   playing guitar: ["John", "Terry", "Anna"],
-// // //   singing: ["John", "Paul"],
-// // //   swimming: ["Terry", "Anna", "Paul"],
-// // //   walking: ["John", "Anna"]
-// // // }
