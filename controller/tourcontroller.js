@@ -157,67 +157,67 @@ exports.getMonthlyPlan = catchAsync(async (req, res) => {
     },
   });
 });
-exports.getToursWithin = catchAsync(async (req, res, next) => {
-  const { distance, latlng, unit } = req.params;
-  const [lat, lon] = latlng.split(',');
-  // We are checking ki unit miles me hai ya km me uske bas use radius of earth se divide mar rahe taki value radians me mile
-  const radius = unit === 'mi' ? distance / 3963.2 : distance / 6378.1;
-  if (!lat || !lon) {
-    next(
-      new AppError(
-        'Please provide latitude and longitude in the format lat,lon.',
-        400
-      )
-    );
-  }
-  const tours = await Tour.find({
-    startLocation: { $geoWithin: { $centerSphere: [[lon, lat], radius] } },
-  });
-  console.log(distance, lat, lon, unit);
-  res.status(200).json({
-    status: 'Success',
-    results: tours.length,
-    data: {
-      data: tours,
-    },
-  });
-});
-exports.getDistances = catchAsync(async (req, res, next) => {
-  const { latlng, unit } = req.params;
-  const [lat, lng] = latlng.split(',');
-  const multiplier = unit === 'mi' ? 0.000621371 : 0.001;
-  // We are checking ki unit miles me hai ya km me uske bas use radius of earth se divide mar rahe taki value radians me mile
-  if (!lat || !lng) {
-    next(
-      new AppError(
-        'Please provide latitude and longitude in the format lat,lon.',
-        400
-      )
-    );
-  }
-  const distances = await Tour.aggregate([
-    {
-      //Hamesha geonear hi pehla field hona chahiye aggregation me... Ek bar aggregation ke pre middleware bhi check krna
-      $geoNear: {
-        near: {
-          type: 'Point',
-          coordinates: [lng * 1, lat * 1],
-        },
-        distanceField: 'distance',
-        distanceMultiplier: multiplier,
-      },
-    },
-    {
-      $project: {
-        distance: 1,
-        name: 1,
-      },
-    },
-  ]);
-  res.status(200).json({
-    status: 'Success',
-    data: {
-      data: distances,
-    },
-  });
-});
+// exports.getToursWithin = catchAsync(async (req, res, next) => {
+//   const { distance, latlng, unit } = req.params;
+//   const [lat, lon] = latlng.split(',');
+//   // We are checking ki unit miles me hai ya km me uske bas use radius of earth se divide mar rahe taki value radians me mile
+//   const radius = unit === 'mi' ? distance / 3963.2 : distance / 6378.1;
+//   if (!lat || !lon) {
+//     next(
+//       new AppError(
+//         'Please provide latitude and longitude in the format lat,lon.',
+//         400
+//       )
+//     );
+//   }
+//   const tours = await Tour.find({
+//     startLocation: { $geoWithin: { $centerSphere: [[lon, lat], radius] } },
+//   });
+//   console.log(distance, lat, lon, unit);
+//   res.status(200).json({
+//     status: 'Success',
+//     results: tours.length,
+//     data: {
+//       data: tours,
+//     },
+//   });
+// });
+// exports.getDistances = catchAsync(async (req, res, next) => {
+//   const { latlng, unit } = req.params;
+//   const [lat, lng] = latlng.split(',');
+//   const multiplier = unit === 'mi' ? 0.000621371 : 0.001;
+//   // We are checking ki unit miles me hai ya km me uske bas use radius of earth se divide mar rahe taki value radians me mile
+//   if (!lat || !lng) {
+//     next(
+//       new AppError(
+//         'Please provide latitude and longitude in the format lat,lon.',
+//         400
+//       )
+//     );
+//   }
+//   const distances = await Tour.aggregate([
+//     {
+//       //Hamesha geonear hi pehla field hona chahiye aggregation me... Ek bar aggregation ke pre middleware bhi check krna
+//       $geoNear: {
+//         near: {
+//           type: 'Point',
+//           coordinates: [lng * 1, lat * 1],
+//         },
+//         distanceField: 'distance',
+//         distanceMultiplier: multiplier,
+//       },
+//     },
+//     {
+//       $project: {
+//         distance: 1,
+//         name: 1,
+//       },
+//     },
+//   ]);
+//   res.status(200).json({
+//     status: 'Success',
+//     data: {
+//       data: distances,
+//     },
+//   });
+// });
