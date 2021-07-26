@@ -1,5 +1,5 @@
 const catchAsync = require('../utils/catchAsync');
-const APIFeatures = require('./../utils/apiFeatures');
+const APIFeatures = require('../utils/apiFeatures');
 const AppError = require('../utils/appError');
 
 exports.deleteOne = (Model) =>
@@ -51,10 +51,11 @@ exports.getOne = (Model, popOptions) =>
       return next(new AppError('No document found with that id', 404));
     }
     res.status(200).json({
-      status: 'success',
-      data: {
-        doc,
-      },
+      data: doc,
+      // status: 'success',
+      // data: {
+      //   doc,
+      // },
     });
   });
 exports.getAll = (Model) =>
@@ -72,10 +73,11 @@ exports.getAll = (Model) =>
     const doc = await features.query;
 
     res.status(200).json({
-      status: 'success',
-      results: doc.length,
-      data: {
-        data: doc,
-      },
+      data: doc,
+      // status: 'success',
+      // results: doc.length,
+      // data: {
+      //   data: doc,
+      // },
     });
   });

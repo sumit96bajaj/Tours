@@ -1,6 +1,6 @@
 const express = require('express');
 
-const reviewRouter = require('./../Routes/reviewRoutes');
+const reviewRouter = require('./reviewRoutes');
 
 const authController = require('../controller/authController');
 

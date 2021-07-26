@@ -1,16 +1,15 @@
 const fs = require('fs');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
-process.on('uncaughtException', (err) => {
-  console.log(err.name, err.message);
-  console.log('Unhandled exception Shutting down');
-  process.exit(1);
-});
+// process.on('uncaughtException', (err) => {
+//   console.log(err.name, err.message);
+//   console.log('Unhandled exception Shutting down');
+//   process.exit(1);
+// });
 
 dotenv.config({ path: './config.env' });
 const DB = process.env.DATABASE;
 mongoose
-  // .connect(process.env.DATABASE_LOCAL, {
   .connect(DB, {
     useUnifiedTopology: true,
     useNewUrlParser: true,
@@ -35,3 +34,4 @@ process.on('unhandledRejection', (err) => {
     process.exit(1);
   });
 });
+module.exports = server;
