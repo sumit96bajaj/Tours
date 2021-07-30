@@ -27,7 +27,7 @@ const createSendToken = (user, statusCode, res) => {
   };
   if (process.env.NODE_ENV === 'production') cookieOptions.secure = true;
   res.cookie('jwt', token, cookieOptions);
-  user.password = undefined; // ye isiliye likha job nya user create kar rahe
+  user.password = undefined; // this is for new user creation
   res.status(statusCode).json({
     status: 'success',
     token,
@@ -46,6 +46,7 @@ exports.signup = catchAsync(async (req, res, next) => {
     // role: req.body.role,
   });
   createSendToken(newUser, 201, res);
+  console.log("Hello world");
 });
 exports.signin = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
@@ -59,7 +60,6 @@ exports.signin = catchAsync(async (req, res, next) => {
   createSendToken(user, 200, res);
 });
 exports.protect = catchAsync(async (req, res, next) => {
-  //isme hum authorization se kam karenge jo signin ya signup se milega
   let token;
   if (
     req.headers.authorization &&
@@ -86,23 +86,22 @@ exports.protect = catchAsync(async (req, res, next) => {
       new AppError('User recently changed password please login again'),
       401
     );
-  } //BAHUT IMPORTANT HAI YE req.user
-  req.user = currentUser; //ye ek naya object create kar rha hai req pe jo hum age use karenge taki vo user mil sake jisne signin kara hai
+  }
+  req.user = currentUser;
   next();
 });
 exports.restrictTo =
   (...roles) =>
-  //roles is an array example [admin,lead-guide]
-  (req, res, next) => {
-    if (!roles.includes(req.user.role)) {
-      //.role wali value uparse access hui hai req.user se because ye middleware se pehle upar wala chalega delete tour me
-      return next(
-        new AppError('You do not have permission to do this action'),
-        403
-      );
-    }
-    next();
-  };
+    //roles is an array example [admin,lead-guide]
+    (req, res, next) => {
+      if (!roles.includes(req.user.role)) {
+        return next(
+          new AppError('You do not have permission to do this action'),
+          403
+        );
+      }
+      next();
+    };
 exports.forgotPassword = catchAsync(async (req, res, next) => {
   //isme input me email dalenge
   const user = await User.findOne({ email: req.body.email });
@@ -139,7 +138,6 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
   }
 });
 exports.resetPassword = catchAsync(async (req, res, next) => {
-  //isme input me password or confirm password dalenge
   const hashedToken = crypto
     .createHash('sha256')
     .update(req.params.token)

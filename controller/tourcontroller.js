@@ -38,7 +38,7 @@ exports.getAllTours = catchAsync(async (req, res, next) => {
 exports.getTour = async (req, res, next) => {
   //we need to write populate in all query where there is find so we are creating a middleware function
 
-  const tour = await Tour.findById("5c88fa8cf4afda39709c2955");
+  const tour = await Tour.findById("d2de2ede");
   if (!tour) {
     return next(new AppError('No tour found with that id', 404));
   }
@@ -101,7 +101,7 @@ exports.getTourStats = async (req, res) => {
       },
     },
     {
-      $sort: { avgPrice: 1 }, //avgprice wali property uparwali hi hai naki object wali hum ab jan bhi sorting karenge tov group ke andar ke elements ke hisab se karenge
+      $sort: { avgPrice: 1 },
     },
     // {
     //   $match: { _id: { $ne: 'easy' } },
@@ -156,7 +156,6 @@ exports.getMonthlyPlan = catchAsync(async (req, res) => {
 exports.getToursWithin = catchAsync(async (req, res, next) => {
   const { distance, latlng, unit } = req.params;
   const [lat, lon] = latlng.split(',');
-  // We are checking ki unit miles me hai ya km me uske bas use radius of earth se divide mar rahe taki value radians me mile
   const radius = unit === 'mi' ? distance / 3963.2 : distance / 6378.1;
   if (!lat || !lon) {
     next(
@@ -177,7 +176,6 @@ exports.getDistances = catchAsync(async (req, res, next) => {
   const { latlng, unit } = req.params;
   const [lat, lng] = latlng.split(',');
   const multiplier = unit === 'mi' ? 0.000621371 : 0.001;
-  // We are checking ki unit miles me hai ya km me uske bas use radius of earth se divide mar rahe taki value radians me mile
   if (!lat || !lng) {
     next(
       new AppError(
@@ -188,7 +186,7 @@ exports.getDistances = catchAsync(async (req, res, next) => {
   }
   const distances = await Tour.aggregate([
     {
-      //Hamesha geonear hi pehla field hona chahiye aggregation me... Ek bar aggregation ke pre middleware bhi check krna
+
       $geoNear: {
         near: {
           type: 'Point',

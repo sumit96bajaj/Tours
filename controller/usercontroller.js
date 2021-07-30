@@ -25,26 +25,26 @@ exports.getAllUsers = catchAsync(async (req, res, next) => {
 });
 exports.updateMe = catchAsync(async (req, res, next) => {
   if (req.body.password || req.body.passwordConfirm) {
-    console.log(req.body, req.user);
     return next(new AppError('This route is not for password updates', 400));
   }
-  const filteredBody = filterObj(req.body, 'name', 'email'); // Hum sab kuch update nhi kara sakte jaise role agar vo admin ban gaya to gadbad ho jayega
+  const filteredBody = filterObj(req.body, 'name', 'email');
+  console.log("hello world");
   const updatedUser = await User.findByIdAndUpdate(req.user, filteredBody, {
     new: true, // it will return that updated object
     runValidators: true,
   });
   res.status(200).json({
-    status: 'success',
-    data: {
-      user: updatedUser,
-    },
+    data: updatedUser,
+    // status: 'success',
+    // data: {
+    //   user: updatedUser,
+    // },
   });
 });
 exports.deleteMe = async (req, res, next) => {
   const user = await User.findByIdAndUpdate(req.user.id, { active: false });
   res.status(204).json({
-    status: 'success',
-    data: 'null',
+    data: null,
   });
 };
 exports.createUser = (req, res) => {
@@ -57,9 +57,34 @@ exports.getMe = (req, res, next) => {
   req.params.id = req.user.id;
   next();
 };
-exports.getUser = factory.getOne(User);
+// exports.getUser = factory.getOne(User);
+exports.getUser = catchAsync(async (req, res, next) => {
+  const doc = await User.findById(req.params.id);
+  if (!doc) {
+    return next(new AppError('No doc found with that id', 404));
+  }
+  res.status(200).json({
+    data: doc,
+  });
+});
 // Do not update passwords in this
-exports.updateUser = factory.updateOne(User);
+// exports.updateUser = factory.updateOne(User);
+exports.updateUser = catchAsync(async (req, res, next) => {
+  const doc = await User.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: true,
+  });
+  if (!doc) {
+    return next(new AppError('No document found with that id', 404));
+  }
+  res.status(200).json({
+    data: doc,
+    // status: 'success',
+    // data: {
+    //   data: doc,
+    // },
+  });
+});
 // exports.deleteUser = factory.deleteOne(User);
 exports.deleteUser = async (req, res, next) => {
   const doc = await User.findByIdAndDelete(req.params.id);

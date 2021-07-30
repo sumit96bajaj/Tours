@@ -5,7 +5,6 @@ const factory = require('./handlerFactory');
 exports.getAllReviews = factory.getAll(Review);
 // exports.getAllReviews = catchAsync(async (req, res, next) => {
 //   let filter = {};
-// Hum isme ek hack khel rahe jake factory handler getall me dekho
 //   if (req.params.tourId) filter = { tour: req.params.tourId };
 //   const reviews = await Review.find(filter);
 //   res.status(200).json({
@@ -22,7 +21,6 @@ exports.setTourUserId = (req, res, next) => {
   next();
 };
 exports.getReview = factory.getOne(Review);
-//Hame isme create wala factoryhandler ka function use karna isiliye hum isme ek middleware jod de rahe taki tourid or userid mil jaye
 exports.createReview = factory.createOne(Review);
 exports.deleteReview = factory.deleteOne(Review);
 exports.updateReview = factory.updateOne(Review);

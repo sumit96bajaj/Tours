@@ -225,6 +225,7 @@ describe("TourController", function () {
             };
             var stub = sinon.stub(Tour, "findById").resolves(stubData);
             const tour = await tourController.getTour();
+            console.log(tour);
             expect(tour).to.be.equal(stubData);
         });
     });
@@ -822,6 +823,9 @@ describe("TourController", function () {
             status.returns(res);
         });
         it("It should delete a tour", async function () {
+            after(function () {
+                Tour.find();
+            });
             const stubData = {
                 "doc": {
                     "startLocation": {

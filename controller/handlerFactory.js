@@ -68,7 +68,7 @@ exports.getAll = (Model) =>
       .sort()
       .limitFields()
       .paginate();
-    //Ye hum log indexing lagane ke liye kiye the
+
     // const doc = await features.query.explain();
     const doc = await features.query;
 
