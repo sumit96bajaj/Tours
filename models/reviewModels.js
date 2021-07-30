@@ -52,7 +52,6 @@ reviewSchema.pre(/^find/, function (next) {
   next();
 });
 reviewSchema.statics.calcAverageRatings = async function (tourId) {
-  //Static method me this current model ko point karta hai i.e Review
   const stats = await this.aggregate([
     {
       $match: { tour: tourId },
@@ -77,15 +76,12 @@ reviewSchema.statics.calcAverageRatings = async function (tourId) {
     });
   }
 };
-//Hum nhi chahte ki same user same tour pe ek se zyada review likhe isiliye indexing kar rahe
 reviewSchema.index({ tour: 1, user: 1 }, { unique: true });
 reviewSchema.post('save', function () {
-  // This points to current review. Hum Review access nhi hoga abhi yaha, or ise  neeche bhi nhi likh sakte because waha ye middleware kam nhi karega
   this.constructor.calcAverageRatings(this.tour);
 });
 //findByIdAndUpdate
 //findByIdAndDelete
-// Hum pehle query nikalke save kar le rahe hain because post middleware me vo execute ho chuki hogi
 reviewSchema.pre(/^findOneAnd/, async function (next) {
   this.r = await this.findOne();
   next();

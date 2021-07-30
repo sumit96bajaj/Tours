@@ -120,8 +120,8 @@ tourSchema.virtual('durationWeeks').get(function () {
 });
 tourSchema.virtual('reviews', {
   ref: 'Review',
-  foreignField: 'tour', // ye reviewSchema me tour ka key hai
-  localField: '_id', //ye tourSchema me tour as a id store hota
+  foreignField: 'tour',
+  localField: '_id',
 });
 tourSchema.pre('save', function (next) {
   this.slug = slugify(this.name, { lower: true });

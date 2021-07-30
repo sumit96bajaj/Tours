@@ -58,7 +58,7 @@ userSchema.pre('save', async function (next) {
 });
 userSchema.pre('save', function (next) {
   if (!this.isModified('password') || this.isNew) return next();
-  this.passwordChangedAt = Date.now() - 1000; //Kabhi kabhi aisa hota ki token pehle create ho jata created at se taki vo na ho isiliye 1s minus kar diya hai
+  this.passwordChangedAt = Date.now() - 1000;
   next();
 });
 userSchema.pre(/^find/, function (next) {
