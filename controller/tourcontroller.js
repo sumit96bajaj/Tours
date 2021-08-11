@@ -24,31 +24,30 @@ exports.getAllTours = catchAsync(async (req, res, next) => {
     .paginate();
   // console.log(features);
   const tours = await features.query;
-  return tours;
-  // res.status(200).json({
-  //   status: 'success',
-  //   results: tours.length,
-  //   data: {
-  //     tours,
-  //   },
-  // });
+  res.status(200).json({
+    status: 'success',
+    results: tours.length,
+    data: {
+      tours,
+    },
+  });
 });
 
 // exports.getTour = factory.getOne(Tour, { path: 'reviews' });
 exports.getTour = async (req, res, next) => {
   //we need to write populate in all query where there is find so we are creating a middleware function
 
-  const tour = await Tour.findById("d2de2ede");
+  const tour = await Tour.findById(req.params.id);
   if (!tour) {
     return next(new AppError('No tour found with that id', 404));
   }
-  return tour;
-  // res.status(200).json({
-  //   status: 'success',
-  //   data: {
-  //     tour,
-  //   },
-  // });
+  // return tour;
+  res.status(200).json({
+    status: 'success',
+    data: {
+      tour,
+    },
+  });
 };
 
 exports.createTour = async (req, res, next) => {
@@ -107,13 +106,13 @@ exports.getTourStats = async (req, res) => {
     //   $match: { _id: { $ne: 'easy' } },
     // },
   ]);
-  return stats;
-  // res.status(200).json({
-  //   status: 'success',
-  //   data: {
-  //     stats,
-  //   },
-  // });
+  // return stats;
+  res.status(200).json({
+    status: 'success',
+    data: {
+      stats,
+    },
+  });
 };
 exports.getMonthlyPlan = catchAsync(async (req, res) => {
   const year = req.params.year * 1;

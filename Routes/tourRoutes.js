@@ -7,6 +7,10 @@ const authController = require('../controller/authController');
 const tourController = require('../controller/tourcontroller');
 
 const router = express.Router();
+
+var passport = require("passport");
+
+require("./../utils/passport")(passport);
 // router.param('id', tourController.checkId);
 router.use('/:tourId/reviews', reviewRouter);
 
@@ -22,8 +26,13 @@ router.route('/distances/:latlng/unit/:unit').get(tourController.getDistances);
 router.route('/tour-stats').get(tourController.getTourStats);
 router
   .route('/monthly-plan/:year')
+  // .get(
+  //   authController.protect,
+  //   authController.restrictTo('admin', 'lead-guide', 'guide'),
+  //   tourController.getMonthlyPlan
+  // );
   .get(
-    authController.protect,
+    passport.authenticate("jwt", { session: false }),
     authController.restrictTo('admin', 'lead-guide', 'guide'),
     tourController.getMonthlyPlan
   );
