@@ -89,8 +89,8 @@ passport.deserializeUser(function (id, cb) {
   });
 });
 passport.use(new GitHubStrategy({
-  clientID: "a9bc44a661d9a64060bd",
-  clientSecret: "19a64dc6e785ec06471aaf217225310824ce4fc8",
+  clientID: process.env.PASSPORT_CLIENTID,
+  clientSecret: process.env.PASSPORT_SECRET,
   callbackURL: "http://localhost:3000/auth/github/callback"
 },
   function (accessToken, refreshToken, profile, cb) {
