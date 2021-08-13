@@ -32,11 +32,11 @@ router
   //   tourController.getMonthlyPlan
   // );
   .get(
-    passport.authenticate("jwt", { session: false }),
     authController.restrictTo('admin', 'lead-guide', 'guide'),
     tourController.getMonthlyPlan
   );
-
+// passport.authenticate("jwt", { session: false }),
+// authController.restrictTo('admin', 'lead-guide', 'guide'),
 router
   .route('/')
   .get(tourController.getAllTours)

@@ -23,6 +23,12 @@ const reviewRouter = require('./Routes/reviewRoutes');
 const userRouter = require('./Routes/userRoutes');
 
 var passport = require("passport");
+
+const User = require("./models/userModels");
+
+const session = require("express-session");
+
+var GitHubStrategy = require('passport-github').Strategy;
 const app = express();
 //set security http headers
 app.use(helmet());
@@ -54,11 +60,73 @@ const limiter = rateLimit({
   windowMs: 60 * 60 * 1000,
   message: 'Too many requests from this IP please try again in 1 hour',
 });
+
+app.use(session({
+  secret: 'keyboard cat',
+  resave: true,
+  saveUninitialized: false,
+}));
+// app.use(session({
+//   secret: 'keyboard cat',
+//   resave: false,
+//   saveUninitialized: false,
+//   cookie: {
+//     httpOnly: true,
+//     secure: false,
+//     maxAge: 24 * 60 * 60 * 1000,
+//   }
+// }));
+app.use(passport.initialize());
+app.use(passport.session());
+passport.serializeUser(function (user, cb) {
+  console.log("serialize", user);
+  cb(null, user);
+})
+passport.deserializeUser(function (id, cb) {
+  console.log("deserialize", id);
+  User.findById(id, function (err, user) {
+    cb(null, id);
+  });
+});
+passport.use(new GitHubStrategy({
+  clientID: "a9bc44a661d9a64060bd",
+  clientSecret: "19a64dc6e785ec06471aaf217225310824ce4fc8",
+  callbackURL: "http://localhost:3000/auth/github/callback"
+},
+  function (accessToken, refreshToken, profile, cb) {
+    console.log(profile);
+    console.log("accesstoken", accessToken);
+    User.find({ githubProfileUrl: profile.profileUrl }, function (err, user) {
+      console.log("user", user);
+      return cb(err, user[0]);
+    });
+    // cb(null, profile);
+  }
+));
+
+function ensureAuthenticated(req, res, next) {
+  // console.log("usercheck", req._passport.session.user);
+  console.log("req.user", req.user);
+  if (req.user) {
+    console.log("hello");
+    return next();
+  }
+  res.send("Not logged in");
+}
 app.use('/api', limiter);
+app.use("/api", ensureAuthenticated);
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/reviews', reviewRouter);
-app.use(passport.initialize());
+app.get('/auth/github',
+  passport.authenticate('github'));
+
+app.get('/auth/github/callback',
+  passport.authenticate('github', { failureRedirect: '/login' }),
+  function (req, res) {
+    // Successful authentication, redirect home.
+    res.redirect('/api/v1/tours');
+  });
 app.all('*', (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server`), 404);
 });
