@@ -6,11 +6,15 @@ const xss = require('xss-clean');
 
 const hpp = require('hpp');
 
+const mongoose = require("mongoose");
+
 const rateLimit = require('express-rate-limit');
 
 const helmet = require('helmet');
 
 const morgan = require('morgan');
+
+const bodyParser = require("body-parser");
 
 const AppError = require('./utils/appError');
 
@@ -22,14 +26,33 @@ const reviewRouter = require('./Routes/reviewRoutes');
 
 const userRouter = require('./Routes/userRoutes');
 
+var flash = require('connect-flash');
+
 var passport = require("passport");
 
 const User = require("./models/userModels");
 
 const session = require("express-session");
 
-var GitHubStrategy = require('passport-github').Strategy;
+const MongoDBSession = require("connect-mongodb-session")(session);
+
+const DB = process.env.DATABASE;
+mongoose
+  .connect(DB, {
+    useUnifiedTopology: true,
+    useNewUrlParser: true,
+    useCreateIndex: true,
+    useFindAndModify: false,
+  })
+  .then(() => console.log('Connection successful for session '));
+
+const store = new MongoDBSession({
+  uri: process.env.DATABASE,
+  collection: "mySessions"
+})
 const app = express();
+
+app.use(bodyParser.urlencoded({ extended: false }));
 //set security http headers
 app.use(helmet());
 //body parser to read data from body into req.body
@@ -65,68 +88,70 @@ app.use(session({
   secret: 'keyboard cat',
   resave: true,
   saveUninitialized: false,
+  store: store,
+  cookie: { maxAge: 24 * 60 * 60 * 1000 },
 }));
-// app.use(session({
-//   secret: 'keyboard cat',
-//   resave: false,
-//   saveUninitialized: false,
-//   cookie: {
-//     httpOnly: true,
-//     secure: false,
-//     maxAge: 24 * 60 * 60 * 1000,
-//   }
-// }));
 app.use(passport.initialize());
 app.use(passport.session());
+app.use(flash());
 passport.serializeUser(function (user, cb) {
-  console.log("serialize", user);
-  cb(null, user);
+  console.log("serialize", user)
+  cb(null, user._id);//this is setting ID to session
 })
 passport.deserializeUser(function (id, cb) {
-  console.log("deserialize", id);
   User.findById(id, function (err, user) {
-    cb(null, id);
+    console.log("deserialize", id);
+    cb(null, user);//user object attached to req.user
   });
 });
-passport.use(new GitHubStrategy({
-  clientID: process.env.PASSPORT_CLIENTID,
-  clientSecret: process.env.PASSPORT_SECRET,
-  callbackURL: "http://localhost:3000/auth/github/callback"
-},
-  function (accessToken, refreshToken, profile, cb) {
-    console.log(profile);
-    console.log("accesstoken", accessToken);
-    User.find({ githubProfileUrl: profile.profileUrl }, function (err, user) {
-      console.log("user", user);
-      return cb(err, user[0]);
-    });
-    // cb(null, profile);
-  }
-));
-
-function ensureAuthenticated(req, res, next) {
-  // console.log("usercheck", req._passport.session.user);
-  console.log("req.user", req.user);
-  if (req.user) {
-    console.log("hello");
-    return next();
-  }
-  res.send("Not logged in");
-}
+require("./utils/passportGithub")(passport);
+require("./utils/passportLocal")(passport);
 app.use('/api', limiter);
-app.use("/api", ensureAuthenticated);
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/reviews', reviewRouter);
+
+//Github Authenticate
 app.get('/auth/github',
   passport.authenticate('github'));
 
 app.get('/auth/github/callback',
-  passport.authenticate('github', { failureRedirect: '/login' }),
+  passport.authenticate('github', { failureRedirect: '/' }),
   function (req, res) {
     // Successful authentication, redirect home.
     res.redirect('/api/v1/tours');
   });
+
+//Google authenticate 
+
+// app.get('/auth/google',
+//   passport.authenticate('google', { scope: ['profile'] }));
+
+// app.get('/auth/google/callback',
+//   passport.authenticate('google', { failureRedirect: '/' }),
+//   function (req, res) {
+//     res.redirect('/api/v1/tours');
+//   });
+
+app.get('/logout', (req, res) => {
+  req.session.destroy((err) => {
+    if (err) throw err;
+  })
+  res.send('Successfully logged out');
+})
+
+//Passport local strategy
+app.post('/login',
+  passport.authenticate('local', {
+    successRedirect: '/api/v1/tours',
+    failureRedirect: '/',
+    failureFlash: true
+  })
+);
+app.set('view engine', 'ejs');
+app.get("/", (req, res) => {
+  res.render("home")
+})
 app.all('*', (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server`), 404);
 });

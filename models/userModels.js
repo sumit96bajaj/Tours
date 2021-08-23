@@ -18,10 +18,6 @@ const userSchema = new mongoose.Schema({
     lowercase: true,
     validate: [validator.isEmail, 'Please provide a valid e-mail'],
   },
-  githubProfileUrl: {
-    type: String,
-    default: "githubProfile",
-  },
   photo: {
     type: String,
   },

@@ -10,8 +10,8 @@ const router = express.Router();
 
 var passport = require("passport");
 
-require("./../utils/passport")(passport);
-// router.param('id', tourController.checkId);
+const appAuth = require("./../app");
+
 router.use('/:tourId/reviews', reviewRouter);
 
 router
@@ -26,17 +26,11 @@ router.route('/distances/:latlng/unit/:unit').get(tourController.getDistances);
 router.route('/tour-stats').get(tourController.getTourStats);
 router
   .route('/monthly-plan/:year')
-  // .get(
-  //   authController.protect,
-  //   authController.restrictTo('admin', 'lead-guide', 'guide'),
-  //   tourController.getMonthlyPlan
-  // );
   .get(
+    authController.protect,
     authController.restrictTo('admin', 'lead-guide', 'guide'),
     tourController.getMonthlyPlan
   );
-// passport.authenticate("jwt", { session: false }),
-// authController.restrictTo('admin', 'lead-guide', 'guide'),
 router
   .route('/')
   .get(tourController.getAllTours)

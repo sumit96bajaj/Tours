@@ -12,6 +12,9 @@ const catchAsync = require('../utils/catchAsync');
 
 const User = require('../models/userModels');
 
+
+// const authenticationTo = require("./../app")(authentication);
+
 const signToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN,
@@ -59,37 +62,44 @@ exports.signin = catchAsync(async (req, res, next) => {
   }
   createSendToken(user, 200, res);
 });
-exports.protect = catchAsync(async (req, res, next) => {
-  let token;
-  if (
-    req.headers.authorization &&
-    req.headers.authorization.startsWith('Bearer')
-  ) {
-    token = req.headers.authorization.split(' ')[1];
+exports.protect = (req, res, next) => {
+  if (req.user) {
+    return next();
   }
-  if (!token) {
-    return next(
-      new AppError('You are not logged in. PLease login to get access', 401)
-    );
-  }
-  //We re checking user exist or not
-  const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
-  const currentUser = await User.findById(decoded.id);
-  if (!currentUser) {
-    return next(
-      new AppError('The user belonging to the token does not exist', 401)
-    );
-  } // here we are checking if user changed the password after issuing token then from previous token no one else could login
-  if (currentUser.changePasswordAfter(decoded.iat)) {
-    //this function is created in usermodels
-    return next(
-      new AppError('User recently changed password please login again'),
-      401
-    );
-  }
-  req.user = currentUser;
-  next();
-});
+  res.send("Not logged in please login again");
+}
+
+// exports.protect = catchAsync(async (req, res, next) => {
+//   let token;
+//   if (
+//     req.headers.authorization &&
+//     req.headers.authorization.startsWith('Bearer')
+//   ) {
+//     token = req.headers.authorization.split(' ')[1];
+//   }
+//   if (!token) {
+//     return next(
+//       new AppError('You are not logged in. PLease login to get access', 401)
+//     );
+//   }
+//   //We re checking user exist or not
+//   const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+//   const currentUser = await User.findById(decoded.id);
+//   if (!currentUser) {
+//     return next(
+//       new AppError('The user belonging to the token does not exist', 401)
+//     );
+//   } // here we are checking if user changed the password after issuing token then from previous token no one else could login
+//   if (currentUser.changePasswordAfter(decoded.iat)) {
+//     //this function is created in usermodels
+//     return next(
+//       new AppError('User recently changed password please login again'),
+//       401
+//     );
+//   }
+//   req.user = currentUser;
+//   next();
+// });
 exports.restrictTo =
   (...roles) =>
     //roles is an array example [admin,lead-guide]
