@@ -91,13 +91,13 @@ const limiter = rateLimit({
 //   store: store,
 //   cookie: { maxAge: 24 * 60 * 60 * 1000 },
 // }));
-app.use(passport.initialize());
-app.use(passport.session());
-app.use(flash());
-passport.serializeUser(function (user, cb) {
-  console.log("serialize", user)
-  cb(null, user._id);//this is setting ID to session
-})
+// app.use(passport.initialize());
+// app.use(passport.session());
+// app.use(flash());
+// passport.serializeUser(function (user, cb) {
+//   console.log("serialize", user)
+//   cb(null, user._id);//this is setting ID to session
+// })
 // passport.deserializeUser(function (id, cb) {
 //   User.findById(id, function (err, user) {
 //     console.log("deserialize", id);
