@@ -84,13 +84,13 @@ const limiter = rateLimit({
   message: 'Too many requests from this IP please try again in 1 hour',
 });
 
-app.use(session({
-  secret: 'keyboard cat',
-  resave: true,
-  saveUninitialized: false,
-  store: store,
-  cookie: { maxAge: 24 * 60 * 60 * 1000 },
-}));
+// app.use(session({
+//   secret: 'keyboard cat',
+//   resave: true,
+//   saveUninitialized: false,
+//   store: store,
+//   cookie: { maxAge: 24 * 60 * 60 * 1000 },
+// }));
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(flash());
@@ -98,12 +98,12 @@ passport.serializeUser(function (user, cb) {
   console.log("serialize", user)
   cb(null, user._id);//this is setting ID to session
 })
-passport.deserializeUser(function (id, cb) {
-  User.findById(id, function (err, user) {
-    console.log("deserialize", id);
-    cb(null, user);//user object attached to req.user
-  });
-});
+// passport.deserializeUser(function (id, cb) {
+//   User.findById(id, function (err, user) {
+//     console.log("deserialize", id);
+//     cb(null, user);//user object attached to req.user
+//   });
+// });
 require("./utils/passportGithub")(passport);
 require("./utils/passportLocal")(passport);
 app.use('/api', limiter);
