@@ -23,7 +23,7 @@ mongoose
 const app = require('./app');
 
 
-const port = 6000;
+const port = 8080;
 
 
 const server = app.listen(port, () => {
