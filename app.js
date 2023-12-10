@@ -6,7 +6,7 @@ const xss = require('xss-clean');
 
 const hpp = require('hpp');
 
-const mongoose = require("mongoose");
+// const mongoose = require("mongoose");
 
 const rateLimit = require('express-rate-limit');
 
@@ -34,22 +34,22 @@ const User = require("./models/userModels");
 
 const session = require("express-session");
 
-const MongoDBSession = require("connect-mongodb-session")(session);
+// const MongoDBSession = require("connect-mongodb-session")(session);
 
-const DB = process.env.DATABASE;
-mongoose
-  .connect(DB, {
-    useUnifiedTopology: true,
-    useNewUrlParser: true,
-    useCreateIndex: true,
-    useFindAndModify: false,
-  })
-  .then(() => console.log('Connection successful for session '));
+// const DB = process.env.DATABASE;
+// mongoose
+//   .connect(DB, {
+//     useUnifiedTopology: true,
+//     useNewUrlParser: true,
+//     useCreateIndex: true,
+//     useFindAndModify: false,
+//   })
+//   .then(() => console.log('Connection successful for session '));
 
-const store = new MongoDBSession({
-  uri: process.env.DATABASE,
-  collection: "mySessions"
-})
+// const store = new MongoDBSession({
+//   uri: process.env.DATABASE,
+//   collection: "mySessions"
+// })
 const app = express();
 
 app.use(bodyParser.urlencoded({ extended: false }));
